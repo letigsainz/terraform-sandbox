@@ -10,7 +10,7 @@ jobs:
     name: Terraform Plan
     runs-on: ubuntu-22.04
     outputs:
-      ARTIFACT_ID: ${{ steps.set-artifact-id-var.outputs.ARTIFACT_ID }}
+      PLANFILE_ARTIFACT_ID: ${{ steps.set-artifact-id-var.outputs.ARTIFACT_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
@@ -25,7 +25,10 @@ jobs:
       - name: Run Terraform Plan
         run: |
           cd terraform 
-          terraform init -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" -backend-config="key=${{ secrets.S3_BACKEND_KEY }}" -backend-config="region=us-east-1"
+          terraform init \
+            -var-file="vars/dev.tfvars" \
+            -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" \
+            -backend-config="key=${{ secrets.S3_BACKEND_KEY }}"
           terraform plan -input=false -out=plan.tfout
       - name: Upload Terraform Plan
         id: artifact-upload
@@ -44,7 +47,7 @@ jobs:
     environment: manual  # set up an environment to make this job only run when manually approved
     needs: plan
     env:
-      ARTIFACT_ID: ${{ needs.plan.outputs.ARTIFACT_ID }}
+      PLANFILE_ARTIFACT_ID: ${{ needs.plan.outputs.PLANFILE_ARTIFACT_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
@@ -64,7 +67,10 @@ jobs:
       - name: Terraform Apply
         run: |
           cd terraform
-          terraform init -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" -backend-config="key=${{ secrets.S3_BACKEND_KEY }}" -backend-config="region=us-east-1"
+          terraform init \
+            -var-file="vars/dev.tfvars" \
+            -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" \
+            -backend-config="key=${{ secrets.S3_BACKEND_KEY }}"
           terraform apply -auto-approve ../plan.tfout
       - name: Delete Artifact
         uses: actions/github-script@v7
@@ -74,7 +80,7 @@ jobs:
             github.rest.actions.deleteArtifact({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              artifact_id: "${{ env.ARTIFACT_ID }}"
+              artifact_id: "${{ env.PLANFILE_ARTIFACT_ID }}"
             });
 
   # destroy:
