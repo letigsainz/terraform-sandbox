@@ -22,20 +22,20 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      - name: Run Terraform Plan
+      - name: Run terraform plan
         run: |
           cd terraform
           terraform init \
             -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" \
             -backend-config="key=${{ secrets.S3_BACKEND_KEY }}"
           terraform plan -var-file="vars/dev.tfvars" -input=false -out=plan.tfout
-      - name: Upload Terraform Plan
+      - name: Upload terraform plan file
         id: artifact-upload
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
           path: terraform/plan.tfout
-      - name: Set Variable
+      - name: Set artifact id as output variable (to share with apply job)
         id: set-artifact-id-var
         run: |
           echo "ARTIFACT_ID="${{ steps.artifact-upload.outputs.artifact-id }}"" >> $GITHUB_OUTPUT
@@ -58,19 +58,19 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      - name: Download Terraform Plan
+      - name: Download terraform plan file
         id: pipeline-artifact
         uses: actions/download-artifact@v4
         with:
           name: terraform-plan
-      - name: Terraform Apply
+      - name: Run terraform apply
         run: |
           cd terraform
           terraform init \
             -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" \
             -backend-config="key=${{ secrets.S3_BACKEND_KEY }}"
           terraform apply -var-file="vars/dev.tfvars" -auto-approve ../plan.tfout
-      - name: Delete Artifact
+      - name: Delete artifact
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.ACTIONS_API_TOKEN }}
@@ -97,7 +97,7 @@ jobs:
   #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
   #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   #         aws-region: us-east-1
-  #     - name: Terraform Destroy
+  #     - name: Run terraform destroy
   #       run: |
   #         cd terraform
   #         terraform destroy -auto-approve
