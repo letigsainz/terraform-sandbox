@@ -24,7 +24,7 @@ jobs:
           aws-region: us-east-1
       - name: Run Terraform Plan
         run: |
-          cd terraform 
+          cd terraform
           terraform init \
             -var-file="vars/dev.tfvars" \
             -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" \
