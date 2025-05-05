@@ -14,7 +14,7 @@ jobs:
     name: Terraform Plan
     runs-on: ubuntu-22.04
     outputs:
-      PLANFILE_ARTIFACT_ID: ${{ steps.set-artifact-id-var.outputs.ARTIFACT_ID }}
+      planfile_artifact_id: ${{ steps.set-artifact-id-var.outputs.artifact_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,7 +56,7 @@ jobs:
       - name: Set artifact id as output variable (to share with apply job)
         id: set-artifact-id-var
         run: |
-          echo "ARTIFACT_ID="${{ steps.artifact-upload.outputs.artifact-id }}"" >> $GITHUB_OUTPUT
+          echo "artifact_id="${{ steps.artifact-upload.outputs.artifact-id }}"" >> $GITHUB_OUTPUT
   
   apply:
     name: Terraform Apply
@@ -64,7 +64,7 @@ jobs:
     environment: manual  # set up an environment to make this job only run when manually approved
     needs: plan
     env:
-      PLANFILE_ARTIFACT_ID: ${{ needs.plan.outputs.PLANFILE_ARTIFACT_ID }}
+      PLANFILE_ARTIFACT_ID: ${{ needs.plan.outputs.planfile_artifact_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
