@@ -107,6 +107,7 @@ jobs:
 
       # Delete artifact immediately because this is a public repo
       - name: Delete artifact
+        if: ${{ always() }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.ACTIONS_API_TOKEN }}
