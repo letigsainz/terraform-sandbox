@@ -45,14 +45,13 @@ jobs:
       - name: Run terraform plan
         run: |
           terraform plan -var-file="vars/dev.tfvars" -input=false -out=plan.tfout
-          echo "$PWD"
 
       - name: Upload terraform plan file
         id: artifact-upload
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
-          path: ./plan.tfout
+          path: terraform/plan.tfout
 
       - name: Set artifact id as output variable (to share with apply job)
         id: set-artifact-id-var
