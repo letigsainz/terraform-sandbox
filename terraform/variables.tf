@@ -5,6 +5,6 @@ variable "remote_state_bucket" {
 }
 
 variable "region" {
-  type = string
+  type        = string
   description = "The AWS region to use."
 }
