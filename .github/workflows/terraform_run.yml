@@ -5,6 +5,8 @@ on: push
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  S3_BACKEND_BUCKET: ${{ secrets.S3_BACKEND_BUCKET }}
+  S3_BACKEND_KEY: ${{ secrets.S3_BACKEND_KEY }}
   TF_VAR_remote_state_bucket: ${{ secrets.S3_BACKEND_BUCKET }}
 
 defaults:
@@ -36,8 +38,8 @@ jobs:
       - name: Terraform init
         run: |
           terraform init \
-            -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" \
-            -backend-config="key=${{ secrets.S3_BACKEND_KEY }}"
+            -backend-config="bucket=${{ env.S3_BACKEND_BUCKET }}" \
+            -backend-config="key=${{ env.S3_BACKEND_KEY }}"
 
       - name: Terraform format
         run: |
@@ -78,8 +80,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Download terraform plan file
@@ -96,8 +98,8 @@ jobs:
       - name: Terraform init
         run: |
           terraform init \
-            -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" \
-            -backend-config="key=${{ secrets.S3_BACKEND_KEY }}"
+            -backend-config="bucket=${{ env.S3_BACKEND_BUCKET }}" \
+            -backend-config="key=${{ env.S3_BACKEND_KEY }}"
 
       - name: Run terraform apply
         run: |
@@ -127,8 +129,8 @@ jobs:
   #     - name: Configure AWS credentials
   #       uses: aws-actions/configure-aws-credentials@v4.1.0
   #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
   #         aws-region: us-east-1
       
   #     - name: Setup terraform
@@ -139,8 +141,8 @@ jobs:
   #     - name: Terraform init
   #       run: |
   #         terraform init \
-  #           -backend-config="bucket=${{ secrets.S3_BACKEND_BUCKET }}" \
-  #           -backend-config="key=${{ secrets.S3_BACKEND_KEY }}"
+  #           -backend-config="bucket=${{ env.S3_BACKEND_BUCKET }}" \
+  #           -backend-config="key=${{ env.S3_BACKEND_KEY }}"
 
   #     - name: Run terraform destroy
   #       run: |
